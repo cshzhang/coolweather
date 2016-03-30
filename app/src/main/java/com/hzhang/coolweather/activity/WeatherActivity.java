@@ -1,5 +1,6 @@
 package com.hzhang.coolweather.activity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -177,6 +178,26 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v)
     {
+        switch (v.getId())
+        {
+            case R.id.switch_city:
+                Intent intent = new Intent(this, ChooseAreaActivity.class);
+                intent.putExtra("from_weather_activity", true);
+                startActivity(intent);
+                finish();
+                break;
+            case R.id.refresh_weather:
+                publicText.setText("同步中...");
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                String weatherCode = prefs.getString("weather_code", "");
+                if(!TextUtils.isEmpty(weatherCode))
+                {
+                    queryWeatherInfo(weatherCode);
+                }
+                break;
 
+            default:
+                break;
+        }
     }
 }
