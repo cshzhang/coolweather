@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hzhang.coolweather.R;
+import com.hzhang.coolweather.service.AutoUpdateService;
 import com.hzhang.coolweather.util.HttpUtil;
 import com.hzhang.coolweather.util.Utility;
 
@@ -172,8 +173,11 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
 
         weatherInfoLayout.setVisibility(View.VISIBLE);
         cityNameText.setVisibility(View.VISIBLE);
-    }
 
+        //启动服务，定时更新天气信息
+        Intent intent = new Intent(this, AutoUpdateService.class);
+        startService(intent);
+    }
 
     @Override
     public void onClick(View v)
@@ -186,6 +190,7 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
                 startActivity(intent);
                 finish();
                 break;
+
             case R.id.refresh_weather:
                 publicText.setText("同步中...");
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
