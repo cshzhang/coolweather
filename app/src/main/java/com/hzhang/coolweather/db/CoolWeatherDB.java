@@ -97,6 +97,24 @@ public class CoolWeatherDB
         return list;
     }
 
+    public Province getProvinceById(int id)
+    {
+        Province province = null;
+
+        Cursor cursor = db.query("province", null, "id=?", new String[]{id+""}, //
+                null, null, null);
+
+        if(cursor.moveToFirst())
+        {
+            province = new Province();
+            province.setId(cursor.getInt(cursor.getColumnIndex("id")));
+            province.setProvinceName(cursor.getString(cursor.getColumnIndex("province_name")));
+            province.setProvinceCode(cursor.getString(cursor.getColumnIndex("province_code")));
+        }
+
+        return province;
+    }
+
     /**
      * 将City实例存储到数据库
      * @param city
@@ -108,6 +126,8 @@ public class CoolWeatherDB
             ContentValues values = new ContentValues();
             values.put("city_name", city.getCityName());
             values.put("city_code", city.getCityCode());
+            values.put("province_id", city.getProvince().getId());
+
             db.insert("city", null, values);
         }
     }
@@ -116,10 +136,11 @@ public class CoolWeatherDB
      * 取出所有cities
      * @return
      */
-    public List<City> getCities()
+    public List<City> getCities(int provinceId)
     {
         List<City> list = new ArrayList<City>();
-        Cursor cursor = db.query("city", null, null, null, null, null, null, null);
+        Cursor cursor = db.query("city", null, "province_id=?", //
+                new String[]{String.valueOf(provinceId)}, null, null, null);
         if(cursor.moveToFirst())
         {
             do
@@ -128,11 +149,30 @@ public class CoolWeatherDB
                 city.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
                 city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
+                city.setProvince(getProvinceById(provinceId));
 
                 list.add(city);
             }while(cursor.moveToNext());
         }
         return list;
+    }
+
+    public City getCityById(int id)
+    {
+        City city = null;
+
+        Cursor cursor = db.query("city", null, "id=?", new String[]{id+""},//
+                null, null, null);
+        if(cursor.moveToFirst())
+        {
+            city = new City();
+            city.setId(cursor.getInt(cursor.getColumnIndex("id")));
+            city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
+            city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
+            city.setProvince(getProvinceById(cursor.getInt(cursor.getColumnIndex("province_id"))));
+        }
+
+        return city;
     }
 
     /**
@@ -146,6 +186,7 @@ public class CoolWeatherDB
             ContentValues values = new ContentValues();
             values.put("county_name", county.getCountyName());
             values.put("county_code", county.getCountyCode());
+            values.put("city_id", county.getCity().getId());
 
             db.insert("county", null, values);
         }
@@ -155,10 +196,11 @@ public class CoolWeatherDB
      * 取出表中所有counties
      * @return
      */
-    public List<County> getCounties()
+    public List<County> getCounties(int cityId)
     {
         List<County> list = new ArrayList<County>();
-        Cursor cursor = db.query("county", null, null, null, null, null, null);
+        Cursor cursor = db.query("county", null, "city_id=?",//
+                new String[]{String.valueOf(cityId)}, null, null, null);
         if(cursor.moveToFirst())
         {
             do
@@ -167,11 +209,31 @@ public class CoolWeatherDB
                 county.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 county.setCountyName(cursor.getString(cursor.getColumnIndex("county_name")));
                 county.setCountyCode(cursor.getString(cursor.getColumnIndex("county_code")));
+                county.setCity(getCityById(cityId));
 
                 list.add(county);
             }while(cursor.moveToNext());
         }
 
         return list;
+    }
+
+    public County getCountyById(int id)
+    {
+        County county = null;
+
+        Cursor cursor = db.query("county", null, "id=?", new String[]{id+""}, //
+                null, null, null);
+
+        if(cursor.moveToFirst())
+        {
+            county = new County();
+            county.setId(id);
+            county.setCountyName(cursor.getString(cursor.getColumnIndex("county_name")));
+            county.setCountyCode(cursor.getString(cursor.getColumnIndex("county_code")));
+            county.setCity(getCityById(cursor.getInt(cursor.getColumnIndex("city_id"))));
+        }
+
+        return county;
     }
 }
